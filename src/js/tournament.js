@@ -198,12 +198,13 @@ class Tournament{
                 // 마지막 카드 데이터의 인덱스 번호
                 let lastCardSequence = -1;
 
-                // 진행중인 카드 수가, 다음 라운드 수와 같을 경우
+                // 진행중인 카드 수가, 다음 라운드 수와 같을 경우(라운드 전환 시점)
                 if (nextRoundNum === --this._currentCardCount){
 
                     currentRoundNum = this._currentRoundNum = this._currentCardCount;
 
                     this._setRoundNumText();
+                    this._createPrevRoundButton();
                 }
                 else{
                     lastCardSequence = storedCard2Item.sequence;
@@ -213,8 +214,6 @@ class Tournament{
 
                 // 다음 이상형 카드들을 화면에 추가시킨다.
                 this._addCards(cards[++lastCardSequence], cards[++lastCardSequence]);
-
-                this._createPrevRoundButton();
             }
             else{
 
@@ -223,7 +222,7 @@ class Tournament{
 
                 if (currentRoundNum > 2){
 
-                    // 진행중인 카드 수가, 다음 라운드 수와 같을 경우
+                    // 진행중인 카드 수가, 다음 라운드 수와 같을 경우(라운드 전환 시점)
                     if (nextRoundNum === --this._currentCardCount){
 
                         // 현재 나머지 카드 수가 다음 강이 된다.
@@ -241,9 +240,6 @@ class Tournament{
 
                     // 새로운 카드를 추가한다.
                     this._addCards(cards[completedCardCount], cards[++completedCardCount]);
-
-                    // 2강 이하에서는 아래 조건으로 "이전 돌아가기" 버튼을 노출시킬 필요가 없다.
-                    // 조건: "최종 이상형을 뽑지 않았을 때만 취소할 수 있다."
                     this._createPrevRoundButton();
                 }
                 else{
@@ -314,7 +310,7 @@ class Tournament{
 
         const tournament = this._tournament;
         const btnPrevRound = domUtil.sel(`.${className.btnPrevRound}`, tournament);
-        const roundNumElem = domUtil.sel(`.${className.roundNum}`, btnPrevRound);
+        const button = domUtil.sel('button', btnPrevRound);
 
         const currentRoundNum = this._currentRoundNum;
         const prevRoundNum = currentRoundNum * 2;
@@ -334,7 +330,7 @@ class Tournament{
             domUtil.prop(btnPrevRound, '@display', 'none');
         }
 
-        domUtil.prop(roundNumElem, 'innerText', prevRoundNum);
+        domUtil.prop(button, 'innerText', `${prevRoundNum}강으로 돌아가기`);
 
         /**
          *
@@ -360,7 +356,7 @@ class Tournament{
                 this._addCards(cards[0], cards[1]);
                 this._setRoundNumText();
 
-                domUtil.prop(roundNumElem, 'innerText', (prevRoundNum * 2));
+                domUtil.prop(button, 'innerText', `${(prevRoundNum * 2)}강으로 돌아가기`);
 
                 if (prevRoundNum === totalRoundNum){
                     domUtil.prop(btnPrevRound, '@display', 'none');
@@ -368,7 +364,6 @@ class Tournament{
             }
         }
     }
-
     /**
      *
      * 최종 우승자 템플릿을 생성한다.
