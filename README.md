@@ -32,8 +32,6 @@ new Lezhin.Tournament({
 }).init();
 ```
 
-프로퍼티
-
 |Name|Types|Description|
 |:--:|:-----:|:----------|
 |`user`|`{Object}`|사용자 객체를 정의한다.|
