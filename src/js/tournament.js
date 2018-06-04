@@ -8,10 +8,11 @@ const tournamentTemplate = require('./view/templates/tournament.html');
 const winnerTemplate = require('./view/templates/winner.html');
 
 const Card = require('./view/card');
-const cardViewModel = require('./model/cardViewModel');
+const CardViewModel = require('./model/cardViewModel');
 
 const className = {
     "round": "round",
+    "cardItem": "card-item",
     "cardItem1": "card-item1",
     "cardItem2": "card-item2",
     "cardInfo": "card-info",
@@ -61,16 +62,18 @@ class Tournament{
         // 현재 라운드
         this._currentRoundNum = roundNum;
 
+        const cardViewModel = this._cardViewModel = new CardViewModel;
+
         // 전달받은 라운드가 부전승이 나올 수 있는지 체크한다.
         if (!this._isPossibleUnearnedWin(roundNum)){
             throw new Error(msg.possibleUnearnedWin);
         }
 
-        // 토너먼트에서 사용될 전체 카드를 가져온다.
-        const cards = this._getFullCards();
+        // 토너먼트에서 사용될 전체 카드를 가져온 후, 다시 섞는다.
+        let cards = cardViewModel.shuffleCards(this._getFullCards());
 
-        // 초기화된 카드들을 다시 섞는다.
-        this._shuffleCards(cardViewModel.initCards(roundNum, cards));
+        // 카드 모델을 초기화 시킨다.
+        cards = cardViewModel.initCards(roundNum, cards).getCards();
 
         // 라운드 전환을 위해 사용되는 현재 진행중인 카드 수
         this._currentCardCount = cards.length;
@@ -84,10 +87,12 @@ class Tournament{
 
         this._render();
 
-        const cards = cardViewModel.getCards(this._totalRoundNum);
+        const cards = this._cardViewModel.getCards(this._totalRoundNum);
 
         this._addCards(cards[0], cards[1]);
         this._addCardEvent();
+
+        return this;
     }
 
     /**
@@ -118,6 +123,7 @@ class Tournament{
 
         const user = this._user;
         const totalRoundNum = this._totalRoundNum;
+        const cardViewModel = this._cardViewModel;
 
         const cards = user.sex === 'male' ? cardViewModel.getFemaleCards() : cardViewModel.getMaleCards();
 
@@ -161,6 +167,7 @@ class Tournament{
     _addCardEvent(){
 
         const tournament = this._tournament;
+        const cardViewModel = this._cardViewModel;
 
         const cardItem1Elem = domUtil.sel(`.${className.cardItem1}`, tournament);
         const cardItem2Elem = domUtil.sel(`.${className.cardItem2}`, tournament);
@@ -171,11 +178,13 @@ class Tournament{
 
         function _click(e){
 
-            const cardInfo = domUtil.sel(`.${className.cardInfo}`, tournament);
-            const selectedCardElem = domUtil.parent(cardInfo)[0];
+            const elem = e.target;
+
+            const selectedCardElem = domUtil.parents(elem, `.${className.cardItem}`)[0];
 
             // 첫번째 카드 아이템
             const card1Item = cardItem1Elem.cardItem;
+
             // 두번째 카드 아이템
             const card2Item = cardItem2Elem.cardItem;
 
@@ -218,19 +227,21 @@ class Tournament{
             else{
 
                 // 진행된 카드 아이템을, 모델에 추가시킨다.
-                const selectedCards = cardViewModel.addCards(currentRoundNum, selectedCardItem, [card1Item, card2Item]);
+                cardViewModel.addCards(currentRoundNum, selectedCardItem, [card1Item, card2Item]);
+
+                --this._currentCardCount
 
                 if (currentRoundNum > 2){
 
                     // 진행중인 카드 수가, 다음 라운드 수와 같을 경우(라운드 전환 시점)
-                    if (nextRoundNum === --this._currentCardCount){
+                    if (nextRoundNum === this._currentCardCount){
 
                         // 현재 나머지 카드 수가 다음 강이 된다.
                         currentRoundNum = this._currentRoundNum = this._currentCardCount;
 
-                        // 선택된 라운드 카드들을 다시 섞는다.
+                        // 다음 라운드에서 사용할 카드들을 다시 섞는다.(섞인 카드로 카드 모델이 다시 반영된다)
                         // 조건 "강 전환 시 이상형의 순서는 랜덤으로 섞인다."
-                        this._shuffleCards(selectedCards);
+                        cardViewModel.shuffleCards(cardViewModel.getCards());
                         this._setRoundNumText();
                     }
 
@@ -244,6 +255,9 @@ class Tournament{
                 }
                 else{
 
+                    // 라운드를 변경시킨다.
+                    this._currentRoundNum = 1;
+
                     domUtil.prop(this._round, 'innerText', text.lastWinner);
 
                     // winner 템플릿을 생성한다.
@@ -252,29 +266,6 @@ class Tournament{
             }
         }
     }
-
-    /**
-     *
-     * 전달받은 카드들을 섞은 후, 시퀀스 정보를 추가시킨다.
-     *
-     *
-     * @returns {*}
-     * @private
-     */
-    _shuffleCards(cards = []){
-
-        let ret = util.shuffle(cards);
-
-        const length = cards.length;
-
-        // 데이터가 새롭게 가공된 이후(계층 구조), 라운드별로 정렬하기위해 미리 "sequence" 속성(배열이 갖는 초기 인덱스 번호)을 추가시켜놓는다.
-        for (let i = 0; i < length; i++) {
-            ret[i].sequence = i;
-        }
-
-        return ret;
-    }
-
     /**
      *
      * 타이틀 정보를 화면에 표시한다.
@@ -350,7 +341,7 @@ class Tournament{
                 this._currentRoundNum = prevRoundNum;
                 this._currentCardCount = prevRoundNum;
 
-                const cards = cardViewModel.getCards(prevRoundNum);
+                const cards = this._cardViewModel.getCards(prevRoundNum);
 
                 // 이전 라운드의 첫번째, 두번째 카드로 초기화시킨다.
                 this._addCards(cards[0], cards[1]);
@@ -374,7 +365,7 @@ class Tournament{
     _createWinnerTemplate(cardItem = null){
 
         const tournament = this._tournament;
-        const selectedCards = cardViewModel.getCards();
+        const selectedCards = this._cardViewModel.getCards();
 
         const stage = domUtil.sel(`.${className.stage}`, tournament);
 
@@ -483,7 +474,7 @@ class Tournament{
      * @private
      */
     _hasCompletedCard(roundNum = 0){
-        return cardViewModel.completedCardCount(roundNum) ? true : false;
+        return this._cardViewModel.completedCardCount(roundNum) ? true : false;
     }
 
     /**

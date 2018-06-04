@@ -11,7 +11,6 @@ module.exports = function (config) {
         browsers: ['Chrome'],
         reporters: ['spec'],
         webpack: {
-            //devtool: 'inline-source-map',
             devtool: 'source-map',
             module: {
                 rules: [{
@@ -38,7 +37,7 @@ module.exports = function (config) {
         frameworks: ['mocha'],
         files: [
             'test/**/*.spec.js',
-            'src/assets/sass/*.scss'
+            'src/sass/*.scss'
         ],
         plugins: [
             'karma-chrome-launcher',
@@ -53,7 +52,7 @@ module.exports = function (config) {
         ],
         preprocessors: {
             'test/**/*.spec.js': ['webpack', 'sourcemap'],
-            'src/assets/sass/*.scss': ['scss']
+            'src/sass/*.scss': ['scss']
         },
         //coverageReporter: {
         //    type: 'html',

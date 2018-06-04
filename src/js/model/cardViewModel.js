@@ -5,21 +5,21 @@ const type = require('../common/type');
 // 카드 데이터
 const data = require('../../data/card.json');
 
-// 선택된 카드 데이터
-const selectedCards = [];
-
 /**
- * 토너먼트 view model
- * @type {{getMaleCards: Function, getFemaleCards: Function, initSelectedCards, addSelectedCards, getSelectedCards, completedCardCount}}
+ * CardViewModel 클래스
  */
-const cardViewModel = {
+class CardViewModel{
 
+    constructor(){
+        this.selectedCards = [];
+    }
     /**
+     *
      * 성별이 남자인 카드 아이템 집합을 반환한다.
      *
      * @returns {Array}
      */
-    getMaleCards: () => {
+    getMaleCards(){
 
         const ret = [];
 
@@ -30,14 +30,15 @@ const cardViewModel = {
         });
 
         return ret;
-    },
+    }
+
     /**
      *
      * 성별이 여자인 카드 아이템 집합을 반환한다.
      *
      * @returns {Array}
      */
-    getFemaleCards: () => {
+    getFemaleCards(){
 
         const ret = [];
 
@@ -48,9 +49,15 @@ const cardViewModel = {
         });
 
         return ret;
-    },
+    }
+
     /**
+     *
      * 카드 아이템 집합을 초기화한다.
+     *
+     * @param roundNum
+     * @param children
+     * @returns {CardViewModel}
      */
     initCards(roundNum = 0, children = []){
 
@@ -65,18 +72,27 @@ const cardViewModel = {
 
             v.completed = false;
 
-            selectedCards.push(v);
+            this.selectedCards.push(v);
         });
 
-        return selectedCards;
-    },
+        return this;
+    }
+
     /**
+     *
      * 전달받은 라운드에, (부모/자식)카드 아이템들을 추가한다.
+     *
+     * @param roundNum
+     * @param parent
+     * @param children
+     * @returns {CardViewModel}
      */
     addCards(roundNum = 0, parent = {}, children = []){
 
         parent = util.cloneDeep(parent);
         children = util.cloneDeep(children);
+
+        const selectedCards = this.selectedCards;
 
         // 다음 라운드
         const nextRoundNum = roundNum / 2;
@@ -104,16 +120,22 @@ const cardViewModel = {
             });
         });
 
-        return selectedCards;
-    },
+        return this;
+    }
+
     /**
+     *
      * 전달받은 라운드의 카드 아이템을 반환한다.
+     *
+     * @param roundNum
+     * @param cardId
+     * @returns {Array}
      */
     getCards(roundNum = 0, cardId = ''){
 
         let ret = [];
 
-        const stack = util.cloneDeep(selectedCards);
+        const stack = util.cloneDeep(this.selectedCards);
         let card = null;
 
         if (!type.isEmpty(roundNum)){
@@ -144,19 +166,45 @@ const cardViewModel = {
             }
         }
         else{
-            ret = selectedCards;
+            ret = this.selectedCards;
         }
 
         return ret;
-    },
+    }
+
     /**
+     *
+     * 전달받은 카드들을 섞은 후, 시퀀스 정보를 추가시킨다.
+     *
+     * @param cards
+     * @returns {*}
+     */
+    shuffleCards(cards = []){
+
+        let ret = util.shuffle(cards);
+
+        const length = cards.length;
+
+        // 데이터가 새롭게 가공된 이후(계층 구조), 라운드별로 정렬하기위해 미리 "sequence" 속성(배열이 갖는 초기 인덱스 번호)을 추가시켜놓는다.
+        for (let i = 0; i < length; i++) {
+            ret[i].sequence = i;
+        }
+
+        return ret;
+    }
+
+    /**
+     *
      * 전달받은 라운드에서 선택된 카드 수를 반환한다.
+     *
+     * @param roundNum
+     * @returns {number}
      */
     completedCardCount(roundNum = 0){
 
         let ret = 0;
 
-        const stack = util.cloneDeep(selectedCards);
+        const stack = util.cloneDeep(this.selectedCards);
         let card = null;
 
         while (card = stack.shift()){
@@ -174,8 +222,8 @@ const cardViewModel = {
 
         return ret;
     }
-};
+}
 
-module.exports = cardViewModel;
+module.exports = CardViewModel;
 
   

@@ -24,6 +24,8 @@ const util = {
                 return callback(v, index, array);
             });
         }
+
+        return this;
     },
     /**
      * 전달받은 Object/Array 객체를 얕은 복사한다
