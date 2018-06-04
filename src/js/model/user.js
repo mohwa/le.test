@@ -7,13 +7,11 @@ class User{
     constructor({
         id = 'yanione2@gmail.com',
         name = '전성균',
-        age = 0,
         sex = 'male'
     } = {}){
 
         this.id = id;
         this.name = name;
-        this.age = age;
         this.sex = sex;
     }
 }
