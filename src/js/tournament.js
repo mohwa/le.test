@@ -229,7 +229,7 @@ class Tournament{
                 // 진행된 카드 아이템을, 모델에 추가시킨다.
                 cardViewModel.addCards(currentRoundNum, selectedCardItem, [card1Item, card2Item]);
 
-                --this._currentCardCount
+                --this._currentCardCount;
 
                 if (currentRoundNum > 2){
 
@@ -239,7 +239,7 @@ class Tournament{
                         // 현재 나머지 카드 수가 다음 강이 된다.
                         currentRoundNum = this._currentRoundNum = this._currentCardCount;
 
-                        // 다음 라운드에서 사용할 카드들을 다시 섞는다.(섞인 카드로 카드 모델이 다시 반영된다)
+                        // 다음 라운드에서 사용할 카드들을 다시 섞기 및 초기 시퀀스 번호도 할당한다.(섞인 카드로 카드 모델이 다시 반영된다)
                         // 조건 "강 전환 시 이상형의 순서는 랜덤으로 섞인다."
                         cardViewModel.shuffleCards(cardViewModel.getCards());
                         this._setRoundNumText();

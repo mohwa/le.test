@@ -181,9 +181,9 @@ class CardViewModel{
      */
     shuffleCards(cards = []){
 
-        let ret = util.shuffle(cards);
+        let ret = util.clone(util.shuffle(cards));
 
-        const length = cards.length;
+        const length = ret.length;
 
         // 데이터가 새롭게 가공된 이후(계층 구조), 라운드별로 정렬하기위해 미리 "sequence" 속성(배열이 갖는 초기 인덱스 번호)을 추가시켜놓는다.
         for (let i = 0; i < length; i++) {
@@ -192,7 +192,6 @@ class CardViewModel{
 
         return ret;
     }
-
     /**
      *
      * 전달받은 라운드에서 선택된 카드 수를 반환한다.
