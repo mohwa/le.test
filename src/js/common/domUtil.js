@@ -466,7 +466,11 @@ const domUtil = {
 
         const ret = [];
 
-        v.forEach(v => { ret.push(v); });
+        const length = v.length;
+
+        for (let i = 0; i < length; i++){
+            ret.push(v[i]);
+        }
 
         return ret;
     },
