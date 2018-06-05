@@ -1,18 +1,20 @@
 # [이상형 토너먼트 앱](https://github.com/mohwa/le.test)
 
-## 의존성 모듈 설치하기
+자신의 이상형을 알아보기 위한 `이상형 토너먼트앱`입니다.
+
+## 설치하기
 
 ```
 npm i
 ```
 
-## 데모보기
+## 시작하기
 
 ```
 npm run start
 ```
 
-## 테스트 실행하기
+## 테스트 실행
 
 ```
 npm run test
@@ -36,3 +38,7 @@ new Lezhin.Tournament({
 |:--:|:-----:|:----------|
 |`user`|`{Object}`|사용자 객체를 정의한다.|
 |`roundNum`|`{Number}`|시작 라운드를 정의한다.|
+
+## 데모 페이지
+[https://mohwa.github.io/le.test/](https://mohwa.github.io/le.test/)
+
