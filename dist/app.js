@@ -1206,9 +1206,11 @@ var domUtil = {
 
         var ret = [];
 
-        v.forEach(function (v) {
-            ret.push(v);
-        });
+        var length = v.length;
+
+        for (var i = 0; i < length; i++) {
+            ret.push(v[i]);
+        }
 
         return ret;
     },
@@ -1826,13 +1828,14 @@ var Tournament = function () {
 
             // 뷰포트 가로 사이즈가, 히스토리 가로 사이즈보다 작을 경우
             if (window.innerWidth > historyMinWidth) {
-
                 domUtil.prop(history, 'style', 'min-width:' + historyMinWidth + 'px;');
             } else {
 
                 // 축소할 퍼센트를 구한다.
                 var zoomPercent = parseInt((window.innerWidth - 1) / historyMinWidth * 100);
-                domUtil.prop(history, 'style', 'min-width:' + historyMinWidth + 'px;zoom:' + zoomPercent + '%');
+
+                console.log(parseInt(historyMinWidth * (zoomPercent / 100)));
+                domUtil.prop(history, 'style', 'zoom:' + zoomPercent + '%');
             }
         }
         /**
